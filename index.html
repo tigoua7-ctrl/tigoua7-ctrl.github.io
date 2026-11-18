@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Pilote Solaire : retour Tesla</title>
+<style>
+  :root { color-scheme: light dark; --bg: #f6f7f9; --fg: #16202a; --card: #fff; --line: #d5dbe2; --accent: #1d6fd6; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #11161c; --fg: #e8edf2; --card: #1a2129; --line: #33404d; --accent: #5aa2ff; } }
+  body { margin: 0; padding: 16px; font: 16px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+  main { max-width: 640px; margin: 0 auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  h1 { font-size: 1.25rem; margin: 0 0 12px; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 7em; font: 14px/1.4 ui-monospace, monospace; padding: 10px;
+             border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); word-break: break-all; }
+  button { margin-top: 12px; font: inherit; font-weight: 650; padding: 10px 18px; border: 0; border-radius: 8px;
+           background: var(--accent); color: #fff; cursor: pointer; }
+  .note { font-size: .9rem; opacity: .8; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Collez cette adresse dans Pilote Solaire</h1>
+  <p id="intro">Copiez l'adresse complète ci-dessous, puis collez-la dans Pilote Solaire (fiche de la voiture, étape « Autoriser l'accès à la voiture »).</p>
+  <textarea id="adr" readonly aria-label="Adresse complète de cette page"></textarea>
+  <button id="copier" type="button">Copier</button>
+  <p id="etat" class="note" role="status"></p>
+  <p class="note">Cette page ne fait aucune requête : elle affiche seulement sa propre adresse. Le code qu'elle contient est à usage unique et expire vite : collez-le sans attendre.</p>
+</main>
+<script>
+  (function () {
+    var a = document.getElementById('adr'), b = document.getElementById('copier'), e = document.getElementById('etat');
+    var q = window.location.search;
+    a.value = window.location.href;
+    // le code à usage unique ne reste ni dans la barre d'adresse ni dans l'historique du navigateur
+    try { if (q) { window.history.replaceState(null, '', window.location.pathname); } } catch (x) {}
+    if (q.indexOf('code=') < 0) {
+      document.getElementById('intro').textContent = q.indexOf('error=') >= 0
+        ? "Tesla a renvoyé une erreur (voir l'adresse ci-dessous). Collez-la quand même dans Pilote Solaire : il affichera le motif."
+        : "Cette page sert de retour à l'autorisation Tesla. Elle ne contient pas encore de code : lancez l'autorisation depuis Pilote Solaire.";
+    }
+    b.addEventListener('click', function () {
+      a.focus(); a.select();
+      var ok = function () { e.textContent = 'Adresse copiée. Collez-la dans Pilote Solaire.'; };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(a.value).then(ok, function () { try { document.execCommand('copy'); ok(); } catch (x) { e.textContent = 'Copie impossible : sélectionnez le texte et copiez-le à la main.'; } });
+      } else {
+        try { document.execCommand('copy'); ok(); } catch (x) { e.textContent = 'Copie impossible : sélectionnez le texte et copiez-le à la main.'; }
+      }
+    });
+  })();
+</script>
+</body>
+</html>
